@@ -7,34 +7,38 @@ let mining_base_url = "http://ubiqpool.io/api/accounts/",
     ubq_address = "0x8A77ad102a3C6752779f345dc19914C0FDB6bCfC",
     webhooks_url = 'https://hooks.slack.com/services/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';
 
-//Get data from ubiqpool
-let getPoolData = new Promise(function(resolve,reject) {
-  var chunks = [];
-
-  request.get(mining_base_url + ubq_address)
-  .on('data', function(chunk){
-    chunks.push(chunk);
-    //resolve(res.body);
-  })
-  .on('end',function(){
-    var data = Buffer.concat(chunks);
-    if (data && data != 'undefined'){
-      resolve(data);
-    }
-  })
-  .on('error', function(err){
-    console.error("Uh oh! The GET request failed... " + err + '.');
-  })
-});
-
-//Initialize the process for the first time on startup
+//Initialize the update process for the first time on startup
 proc();
 //Run the process every minute
 var auto_proc = setInterval(proc, 60 * 1000);
 
 function proc(){
+  //Get data from ubiqpool
+  let getPoolData = new Promise(function(resolve,reject) {
+    //var chunks = [];
+
+    let getPoolDataOptions = {
+      method: 'GET',
+      url: mining_base_url + ubq_address,
+      headers: {
+        'User-Agent': 'request',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': 0
+      }
+    }
+
+    function callback(err, res, body) {
+      ((!err && res.statusCode == 200) ? resolve(body) : sendHook('Uh oh! I had some trouble getting the data... ' + err + '.'));
+    }
+
+    request(getPoolDataOptions, callback);
+  });
+
+  //Call the updateHook function when we have data
   getPoolData.then(function(poolData){
     poolData = poolData.toString();
+    console.log(poolData);
     //Make sure the JSON parses before anything else
     Promise.resolve(JSON.parse(poolData)).then(function(parsedData){
       updateHook(parsedData);
