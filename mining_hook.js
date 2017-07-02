@@ -38,7 +38,6 @@ function proc(){
   //Call the updateHook function when we have data
   getPoolData.then(function(poolData){
     poolData = poolData.toString();
-    console.log(poolData);
     //Make sure the JSON parses before anything else
     Promise.resolve(JSON.parse(poolData)).then(function(parsedData){
       updateHook(parsedData);
@@ -59,22 +58,24 @@ function updateHook(data){
 
     ((counter == 0 && data.hashrate > 0 && data.currentHashrate > 0) ? sendHook('*UPDATE*: The total hashrate for address ' + ubq_address + ' is: ' + hashrate + ' MH/s (' + currentHashrate + ' MH/s in the last 30 minutes).') : counter);
 
-    //Check if any workers are offline
+    //Make sure there are workers to... work with
     if (data.workers){
       for (var worker in data.workers){
-        //console.log(data.workers[worker]);
-        if (data.workers[worker].offline == true){
+        let workerHashrate = Math.round((data.workers[worker].hr / 1000 / 1000) * 100) / 100,
+            timeSinceLastShare = Math.floor(new Date() / 1000) - data.workers[worker].lastBeat;
+
+        //Check if any workers are offline
+        if (data.workers[worker].offline === true){
+          console.log("Worker " + worker + " is offline!");
           //Send an alert if the worker is offline
-          sendHook('*ERROR*: MINER ' + data.workers[worker] + ' OFFLINE.');
+          sendHook('*ERROR*: WORKER ' + worker + ' OFFLINE. LAST SHARE WAS FOUND ' + Math.round((timeSinceLastShare / 60) * 100) / 100 + ' MINUTES (' + Math.round(timeSinceLastShare * 100) / 100 + ' SECONDS) AGO.' );
         } else {
           //MORE VERBOSE; SEND THE CURRENT HASHRATE EVERY HOUR FOR THE WORKER IF IT'S ONLINE
-          var workerHashrate = Math.round((data.workers[worker].hr / 1000 / 1000) * 100) / 100,
-              timeSinceLastShare = Math.floor(new Date() / 1000) - data.workers[worker].lastBeat;
-          ((counter == 0) ? sendHook('Worker ' + worker + ' is online and healthy! It\'s current hashrate is ' + workerHashrate + ' MH/s and the last share was discovered ' + Math.round((timeSinceLastShare / 60) * 100) / 100 + ' minutes ago.') : counter);
+          ((counter == 0) ? sendHook('Worker ' + worker + ' is online and healthy! It\'s current hashrate is ' + workerHashrate + ' MH/s and the last share was discovered ' + Math.round((timeSinceLastShare / 60) * 100) / 100 + ' minutes (' + Math.round(timeSinceLastShare * 100) / 100 + ' seconds) ago.') : counter);
         }
       }
     } else {
-      sendHook('*WARNING*: NO MINERS ONLINE FOR ADDRESS ' + ubq_address + '.');
+      sendHook('*WARNING*: NO WORKERS ONLINE FOR ADDRESS ' + ubq_address + '.');
     }
 
     //If counter = 59, reset the counter to 0; otherwise increment it to keep track with minutes in an hour
