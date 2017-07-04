@@ -61,17 +61,16 @@ function updateHook(data){
     //Make sure there are workers to... work with
     if (data.workers){
       for (var worker in data.workers){
-        let workerHashrate = Math.round((data.workers[worker].hr / 1000 / 1000) * 100) / 100,
-            timeSinceLastShare = Math.floor(new Date() / 1000) - data.workers[worker].lastBeat;
+        //let workerHashrate = Math.round((data.workers[worker].hr / 1000 / 1000) * 100) / 100,
+        //    timeSinceLastShare = Math.floor(new Date() / 1000) - data.workers[worker].lastBeat; //calculate the current unix epoch and use the difference from last beat as 'X seconds ago'
 
         //Check if any workers are offline
         if (data.workers[worker].offline === true){
-          console.log("Worker " + worker + " is offline!");
           //Send an alert if the worker is offline
-          sendHook('*ERROR*: WORKER ' + worker + ' OFFLINE. LAST SHARE WAS FOUND ' + Math.round((timeSinceLastShare / 60) * 100) / 100 + ' MINUTES (' + Math.round(timeSinceLastShare * 100) / 100 + ' SECONDS) AGO.' );
-        } else {
-          //MORE VERBOSE; SEND THE CURRENT HASHRATE EVERY HOUR FOR THE WORKER IF IT'S ONLINE
-          ((counter == 0) ? sendHook('Worker ' + worker + ' is online and healthy! It\'s current hashrate is ' + workerHashrate + ' MH/s and the last share was discovered ' + Math.round((timeSinceLastShare / 60) * 100) / 100 + ' minutes (' + Math.round(timeSinceLastShare * 100) / 100 + ' seconds) ago.') : counter);
+          ((counter == 0) ? sendHook('*ERROR*: WORKER ' + worker + ' OFFLINE. LAST SHARE WAS FOUND ' + Math.round((timeSinceLastShare / 60) * 100) / 100 + ' MINUTES (' + Math.round(timeSinceLastShare * 100) / 100 + ' SECONDS) AGO.' ) : counter);
+        //} else if (data.workers[worker].offline === false){
+          //MORE VERBOSE; SEND THE CURRENT HASHRATE
+          //((counter == 0) ? sendHook('Worker ' + worker + ' is online and healthy! It\'s current hashrate is ' + workerHashrate + ' MH/s and the last share was discovered ' + Math.round((timeSinceLastShare / 60) * 100) / 100 + ' minutes (' + Math.round(timeSinceLastShare * 100) / 100 + ' seconds) ago.') : counter);
         }
       }
     } else {
