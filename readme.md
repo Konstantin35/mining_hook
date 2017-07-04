@@ -1,8 +1,8 @@
-#OEP Mining Hook
+# OEP Mining Hook
 
 The [open-ethereum-pool](https://github.com/sammy007/open-ethereum-pool) is a mining pool for Ethereum (ETH) based coins such as Expanse, Ubiq, Ethereum Classic, and of course Ethereum itself. The pool's code includes a public JSON API for each account (address) and details information such as the hashrate for each worker. Most importantly, it tells you when workers are offline - this makes it a great candidate for a webhook service that alerts you when a worker is down!
 
-##How to use this repo
+## How to use this repo
 
 Change the variables near the top of the code to fit your own cryptocurrency address and pool URL. Then get it started with 'node mining_hook' or 'npm start', or even run it with a tool like [forever](https://www.npmjs.com/package/forever).
 
