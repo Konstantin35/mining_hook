@@ -74,11 +74,10 @@ function updateHook(data){
 //Our most important function: send a message to the hook!
 function sendHook(message){
   let hookOptions = {
-    method: 'POST',
-    uri: webhooks_url,
-    body: JSON.stringify({text: message})
+    url: webhooks_url,
+    form: {content: message}
   }
-  request(hookOptions, function(err, response, body) {
+  request.post(hookOptions, function(err, response, body) {
     ((err) ? console.error("Uh oh! The hook wasn't sent... " + err + '.') : console.log('Hook sent to ' + webhooks_url + ': status ' + response.statusCode + '.'));
   });
 }
