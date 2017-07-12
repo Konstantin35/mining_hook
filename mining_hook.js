@@ -5,7 +5,7 @@ let http = require("http"),
 
 let mining_base_url = "http://ubiqpool.io/api/accounts/",
     ubq_address = "0x8A77ad102a3C6752779f345dc19914C0FDB6bCfC",
-    webhooks_url = 'https://hooks.slack.com/services/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';
+    webhooks_url = 'https://discordapp.com/api/webhooks/334507860295811082/00Nmc0n7GgS567_CXtoermcCyiTgIXjtKG7t3j-i_OMZnq1ZbB5RzqBZamgYvqZH5nKs';
 
 //Initialize the update process for the first time on startup
 proc();
