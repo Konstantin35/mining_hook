@@ -15,8 +15,6 @@ var auto_proc = setInterval(proc, 60 * 1000);
 function proc(){
   //Get data from ubiqpool
   let getPoolData = new Promise(function(resolve,reject) {
-    //var chunks = [];
-
     let getPoolDataOptions = {
       method: 'GET',
       url: mining_base_url + ubq_address,
@@ -52,32 +50,18 @@ function proc(){
 var counter = 0;
 function updateHook(data){
   if (data){
-    //If it's been an hour and there are hashrates greater than zero, send the account's hashrates
-    let hashrate = Math.round((data.hashrate / 1000 / 1000) * 100) / 100,
-        currentHashrate = Math.round((data.currentHashrate / 1000 / 1000) * 100) / 100;
-
-    ((counter == 0 && data.hashrate > 0 && data.currentHashrate > 0) ? sendHook('*UPDATE*: The total hashrate for address ' + ubq_address + ' is: ' + hashrate + ' MH/s (' + currentHashrate + ' MH/s in the last 30 minutes).') : counter);
-
     //Make sure there are workers to... work with
     if (data.workers){
       for (var worker in data.workers){
-        //let workerHashrate = Math.round((data.workers[worker].hr / 1000 / 1000) * 100) / 100,
-        //    timeSinceLastShare = Math.floor(new Date() / 1000) - data.workers[worker].lastBeat; //calculate the current unix epoch and use the difference from last beat as 'X seconds ago'
-
-        //Check if any workers are offline
         if (data.workers[worker].offline === true){
           //Send an alert if the worker is offline
-          ((counter == 0) ? sendHook('*ERROR*: WORKER ' + worker + ' OFFLINE. LAST SHARE WAS FOUND ' + Math.round((timeSinceLastShare / 60) * 100) / 100 + ' MINUTES (' + Math.round(timeSinceLastShare * 100) / 100 + ' SECONDS) AGO.' ) : counter);
-        //} else if (data.workers[worker].offline === false){
-          //MORE VERBOSE; SEND THE CURRENT HASHRATE
-          //((counter == 0) ? sendHook('Worker ' + worker + ' is online and healthy! It\'s current hashrate is ' + workerHashrate + ' MH/s and the last share was discovered ' + Math.round((timeSinceLastShare / 60) * 100) / 100 + ' minutes (' + Math.round(timeSinceLastShare * 100) / 100 + ' seconds) ago.') : counter);
+          let timeSinceLastShare = Math.floor(new Date() / 1000) - data.workers[worker].lastBeat; //calculate the current unix epoch and use the difference from last beat as 'X seconds ago'
+          ((counter == 0) ? sendHook('*ERROR*: WORKER ' + worker + ' OFFLINE. LAST SHARE WAS FOUND ' + Math.round((timeSinceLastShare / 60) * 100) / 100 + ' MINUTES (' + Math.round(timeSinceLastShare * 100) / 100 + ' SECONDS) AGO.') : counter);
         }
       }
     } else {
-      sendHook('*WARNING*: NO WORKERS ONLINE FOR ADDRESS ' + ubq_address + '.');
+      ((counter == 0) ? sendHook('*WARNING*: NO WORKERS ONLINE FOR ADDRESS ' + ubq_address + '.') : counter);
     }
-
-    //If counter = 59, reset the counter to 0; otherwise increment it to keep track with minutes in an hour
     ((counter >= 59) ? counter = 0 : counter++);
   } else {
     sendHook('There was some trouble getting the correct data. Please make sure the pool\'s URL is correct, as well as the address you\'re using to mine.');
